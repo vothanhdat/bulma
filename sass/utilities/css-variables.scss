@@ -200,16 +200,16 @@
   $s:math.round(color.channel($base, "saturation", $space: hsl)); // Saturation
   $l:math.round(color.channel($base, "lightness", $space: hsl)); // Lightness
   $base-lum: fn.bulmaColorLuminance($base);
-  $l-base: math.round($l % 10); // Get lightness second digit: 53% -> 3%
+  $l-base: math.round($l % 20); // Get lightness second digit: 53% -> 3%
   $l-0: 0%; // 5% or less
-  $l-5: 5%; // More than 5%
+  $l-5: 20%; // More than 5%
   $a: 1; // Alpha
   $base-digits: "00";
 
   // Calculate digits like "40" for the scheme-main
   $scheme-l-0: 0%;
-  $scheme-l-base: math.round($scheme-main-l % 10);
-  $closest-5: math.round(math.div($scheme-main-l, 5)) * 5;
+  $scheme-l-base: math.round($scheme-main-l % 20);
+  $closest-5: math.round(math.div($scheme-main-l, 20)) * 20;
   $pct-to-int: math.div($closest-5, 100%) * 100;
   $scheme-main-digits: #{$pct-to-int};
 
@@ -224,38 +224,37 @@
   // 05: 3%, 4%, 5%, 6%, 7%
   // 10: 8%, 9%
 
-  @if ($l-base < 3%) {
+  @if ($l-base < 6%) {
     $l-0: $l-base;
-    $l-5: $l-base + 5%;
-  } @else if ($l-base < 8%) {
+    $l-5: $l-base + 20%;
+  } @else if ($l-base < 16%) {
     // $l-0: math.max($l-base - 5%, 0%);
-    $l-0: $l-base - 5%;
+    $l-0: $l-base - 20%;
     $l-5: $l-base;
   } @else {
     // $l-0: math.max($l-base - 10%, 0%);
-    $l-0: $l-base - 10%;
-    $l-5: $l-base - 5%;
+    $l-0: $l-base - 40%;
+    $l-5: $l-base - 20%;
   }
 
   $shades: ();
 
   @for $i from 0 through 9 {
-    // if $l-base = 3%, then we get 3%, 13%, 23%, 33% etc.
-    $color-l-0: math.max($l-0 + $i * 10, 0%);
 
-    // if $l-base = 3%, then we get 8%, 18%, 28%, 38% etc.
-    $color-l-5: $l-5 + $i * 10;
+    @if $i % 2 == 0 {
+      $color-l-0: math.max($l-0 + $i * 10, 0%);
+      $color-l-5: $l-5 + $i * 10;
 
-    $shades: map.set($shades, "#{$i}0", $color-l-0);
-    $shades: map.set($shades, "#{$i}5", $color-l-5);
 
-    @include register-var($name, $color-l-0, "", "-#{$i}0-l");
-    @include register-var($name, $color-l-5, "", "-#{$i}5-l");
+      $shades: map.set($shades, "#{$i}0", $color-l-0);
 
-    @if $color-l-0 == $l {
-      $base-digits: "#{$i}0";
-    } @else if $color-l-5 == $l {
-      $base-digits: "#{$i}5";
+      @include register-var($name, $color-l-0, "", "-#{$i}0-l");
+
+      @if $color-l-0 == $l {
+        $base-digits: "#{$i}0";
+      } @else if $color-l-5 == $l {
+        $base-digits: "#{$i + 2}0";
+      }
     }
   }
 
